@@ -6,8 +6,12 @@ source code for ![]()
 
 ### Requirements:
 
+#### Dependencies:
 - Pytorch == 2.0.1 
 - gym == 0.10.5
+
+#### Domains:
+All the 8 domains with hybird action spaces this code tested on follows the installation instruction of ![HyAR](https://github.com/TJU-DRL-LAB/self-supervised-rl/tree/ece95621b8c49f154f96cf7d395b95362a3b3d4e/RL_with_Action_Representation/HyAR)
 
 ### Usage:
 
