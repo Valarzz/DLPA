@@ -60,7 +60,7 @@ if __name__ == "__main__":
     parser.add_argument("--env", default='Platform-v0')  
     parser.add_argument("--seed", default=0, type=int)  # Sets Gym, PyTorch and Numpy seeds
     parser.add_argument("--max_timesteps", default=500_000, type=int)  # Max time steps to run environment for
-    parser.add_argument("--eval_freq", default=250, type=int)  # How often (time steps) we evaluate
+    parser.add_argument("--eval_freq", default=50, type=int)  # How often (time steps) we evaluate
     parser.add_argument("--eval_eposides", default=50, type=int)
     parser.add_argument("--num_updates", default=25, type=int)
     parser.add_argument('--action_n_dim', default=4, help='action_n_dim.', type=int)
