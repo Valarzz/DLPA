@@ -24,12 +24,15 @@ class world_model(nn.Module):
         if args.model_type == "concat":
             model_inp_dim = self.inp_dim
             s_out_dim, r_out_dim, c_out_dim = self.s_dim, 1, 2
+            model_layers = [args.layers for _ in range(2)]
         elif args.model_type == "multi":
             model_inp_dim = (self.s_dim+self.z_dim)
             s_out_dim, r_out_dim, c_out_dim = self.s_dim * self.k_dim, 1 * self.k_dim, 2 * self.k_dim
+            model_layers = [args.layers, args.layers * self.k_dim]
         elif args.model_type == "overlay":
             model_inp_dim = (self.s_dim+self.k_dim)
             s_out_dim, r_out_dim, c_out_dim = self.s_dim, 1, 2
+            model_layers = [args.layers for _ in range(2)]
             
         if args.env in ['Platform-v0', 'Goal-v0', 'hard_goal-v0']:
             s_tanh = True
@@ -38,7 +41,7 @@ class world_model(nn.Module):
         else:
             raise f"ENV {args.env} not implemented yet"
         
-        self._dyanmics = nets.TanhGaussianPolicy(hidden_sizes=[args.dm_layers for _ in range(2)], 
+        self._dyanmics = nets.TanhGaussianPolicy(hidden_sizes=model_layers, 
                                                 oup_dim=s_out_dim, 
                                                 inp_dim=model_inp_dim,
                                                 tanh=s_tanh, model_type=args.model_type, config=args).to(device)
@@ -49,17 +52,17 @@ class world_model(nn.Module):
             r_tanh = False
         else:
             raise f"ENV {args.env} not implemented yet"
-        self._reward = nets.TanhGaussianPolicy(hidden_sizes=[args.r_layers for _ in range(2)], 
+        self._reward = nets.TanhGaussianPolicy(hidden_sizes=model_layers, 
                                                 oup_dim=r_out_dim, 
                                                 inp_dim=model_inp_dim,
                                                 tanh=r_tanh, model_type=args.model_type, config=args).to(device)
-        self._reward1 = nets.TanhGaussianPolicy(hidden_sizes=[args.r_layers for _ in range(2)], 
+        self._reward1 = nets.TanhGaussianPolicy(hidden_sizes=model_layers, 
                                                 oup_dim=r_out_dim, 
                                                 inp_dim=model_inp_dim,
                                                 tanh=r_tanh, model_type=args.model_type, config=args).to(device)
         
 
-        self._continue = nets.TanhGaussianPolicy(hidden_sizes=[args.dm_layers for _ in range(2)], 
+        self._continue = nets.TanhGaussianPolicy(hidden_sizes=model_layers, 
                                                 oup_dim=c_out_dim, 
                                                 inp_dim=model_inp_dim,
                                                 tanh=False, model_type=args.model_type, config=args).to(device)

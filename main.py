@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import gym
 import argparse
+import time
 
 from DLPA import Trainer
 from utils import Episode
@@ -14,7 +15,10 @@ def run(args):
     total_episodes = 0
     max_per_epi_steps = args.episode_length
 
-    trainer.evaluate(0)
+    # trainer.evaluate(0)
+
+    train_time = []
+    infer_time = []
 
     while total_timesteps < args.max_timesteps:
         state = trainer.reset()
@@ -24,7 +28,10 @@ def run(args):
 
         for j in range(max_per_epi_steps):
             with torch.no_grad():
+                start_infer = time.time()
                 act, act_param = trainer.plan(state, step=total_episodes, t0=(j==0), local_step=j)
+                infer_time.append(time.time()-start_infer)
+
                 action = trainer.pad_action(act, act_param)
                 state, reward, terminal = trainer.act(action, j, pre_state=state)
 
@@ -36,21 +43,30 @@ def run(args):
             train_metrics = {}
             if total_episodes >= args.seed_steps:
                 for i in range(args.num_updates):
+                    start_train = time.time()
                     train_log = trainer.train_sperate(total_episodes+i)
+                    train_time.append(time.time()-start_train)
 
                     train_metrics.update(train_log)
                     trainer.upload_log(train_log)
 
-            if total_timesteps % args.eval_freq == 0:
-                trainer.evaluate(total_timesteps)
-                trainer.save_local()
-                break
+            # if total_timesteps % args.eval_freq == 0:
+            #     trainer.evaluate(total_timesteps)
+            #     trainer.save_local()
+            #     break
 
             if terminal:
                 break
             
         trainer.buffer += episode
         total_episodes += 1
+
+        if (len(train_time) > 1e3) and (len(infer_time) > 1e3):
+            train_time = np.array(train_time)
+            infer_time = np.array(infer_time)
+            print(f"train aver: {train_time.mean()} || train len: {train_time.shape} || var: {train_time.var()}")
+            print(f"infer aver: {infer_time.mean()} || infer len: {infer_time.shape} || var: {infer_time.var()}")
+            exit()
 
 
 if __name__ == "__main__":
@@ -66,9 +82,7 @@ if __name__ == "__main__":
     parser.add_argument('--action_n_dim', default=4, help='action_n_dim.', type=int)
     parser.add_argument("--seed_steps", default=50, type=int)
     
-    parser.add_argument("--dm_layers", default=64, type=int)
-    parser.add_argument("--r_layers", default=64, type=int)
-    parser.add_argument("--c_layers", default=64, type=int)
+    parser.add_argument("--layers", default=64, type=int)
 
     parser.add_argument("--mpc_horizon", default=8, type=int)
     parser.add_argument("--mpc_gamma", default=0.99, type=float)
