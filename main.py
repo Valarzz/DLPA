@@ -15,10 +15,7 @@ def run(args):
     total_episodes = 0
     max_per_epi_steps = args.episode_length
 
-    # trainer.evaluate(0)
-
-    train_time = []
-    infer_time = []
+    trainer.evaluate(0)
 
     while total_timesteps < args.max_timesteps:
         state = trainer.reset()
@@ -28,9 +25,7 @@ def run(args):
 
         for j in range(max_per_epi_steps):
             with torch.no_grad():
-                start_infer = time.time()
                 act, act_param = trainer.plan(state, step=total_episodes, t0=(j==0), local_step=j)
-                infer_time.append(time.time()-start_infer)
 
                 action = trainer.pad_action(act, act_param)
                 state, reward, terminal = trainer.act(action, j, pre_state=state)
@@ -43,30 +38,20 @@ def run(args):
             train_metrics = {}
             if total_episodes >= args.seed_steps:
                 for i in range(args.num_updates):
-                    start_train = time.time()
                     train_log = trainer.train_sperate(total_episodes+i)
-                    train_time.append(time.time()-start_train)
-
                     train_metrics.update(train_log)
                     trainer.upload_log(train_log)
 
-            # if total_timesteps % args.eval_freq == 0:
-            #     trainer.evaluate(total_timesteps)
-            #     trainer.save_local()
-            #     break
+            if total_timesteps % args.eval_freq == 0:
+                trainer.evaluate(total_timesteps)
+                trainer.save_local()
+                break
 
             if terminal:
                 break
             
         trainer.buffer += episode
         total_episodes += 1
-
-        if (len(train_time) > 1e3) and (len(infer_time) > 1e3):
-            train_time = np.array(train_time)
-            infer_time = np.array(infer_time)
-            print(f"train aver: {train_time.mean()} || train len: {train_time.shape} || var: {train_time.var()}")
-            print(f"infer aver: {infer_time.mean()} || infer len: {infer_time.shape} || var: {infer_time.var()}")
-            exit()
 
 
 if __name__ == "__main__":
@@ -121,6 +106,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
     run(args)
 
-    # for i in range(0, 3):
-    #     args.seed = i
-    #     run(args)

@@ -229,43 +229,6 @@ class Trainer:
         state = torch.tensor(state, dtype=torch.float32, device=device).unsqueeze(0)
         horizon = self.args.mpc_horizon
 
-        # if True:
-        #     k_int = torch.randint(0, self.args.k_dim, size=[self.args.mpc_horizon, self.args.mpc_popsize])
-        #     k_onehot = torch.nn.functional.one_hot(k_int, num_classes=self.args.k_dim).to(device)
-
-        #     z_all = torch.randn(self.args.mpc_horizon, self.args.mpc_popsize, self.args.all_z_dim, device=device) * 2 - 1
-            
-        #     offsets = torch.tensor(self.args.offset).to(device)[k_int.flatten()].unsqueeze(-1).repeat(1, self.args.z_dim) + torch.arange(self.args.z_dim, device=device)
-
-        #     z_one = torch.zeros([self.args.mpc_horizon*self.args.mpc_popsize, self.args.all_z_dim+self.args.z_dim], device=device)
-        #     z_one[:, :self.args.all_z_dim] = z_all.reshape([-1, self.args.all_z_dim])
-            
-        #     zs = torch.gather(z_one, 1, offsets)
-            
-        #     size = torch.from_numpy(self.args.par_size).to(device)[k_int.flatten()].unsqueeze(-1).repeat(1, self.args.z_dim)
-        #     mask = torch.arange(self.args.z_dim).to(device).repeat(len(size), 1)
-        #     mask = torch.where(mask<size, 1., 0.)
-        #     zs = zs * mask
-            
-        #     zs = zs.reshape([self.args.mpc_horizon, self.args.mpc_popsize, self.args.z_dim])
-        #     actions = torch.cat([k_onehot, zs], dim=-1)
-
-        #     s = state.repeat(self.args.mpc_popsize, 1)
-        #     value = self.estimate_value(s, actions, self.args.mpc_horizon, local_step, eval_mode=eval_mode).nan_to_num_(0)
-        #     ind = torch.argmax(value.squeeze(1))
-
-        #     k = k_int[0, ind].item()
-        #     z = zs[0, ind]
-
-        #     if not eval_mode and (self.args.env == "simple_catch-v0" and k==0):
-        #         z += torch.randn(self.args.par_size[k], device=device)
-        #         z = z.clamp(-1., 1.)
-
-        #     if self.args.env in [ "simple_catch-v0"] and k==1:
-        #         z = torch.zeros(1)
-
-        #     return k, z
-
         # Initialize state and parameters
         s = state.repeat(self.args.mpc_popsize, 1)
 
