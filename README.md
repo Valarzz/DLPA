@@ -1,6 +1,6 @@
 # Model-based-Reinforcement-Learning-for-Parameterized-Action-Spaces
 
-source code for [DLPA](https://arxiv.org/abs/2404.03037)
+Source code for [DLPA](https://arxiv.org/abs/2404.03037), ICML 2024
 
 > We propose a novel model-based reinforcement learning algorithm---Dynamics Learning and predictive control with Parameterized Actions (DLPA)---for Parameterized Action Markov Decision Processes (PAMDPs). The agent learns a parameterized-action-conditioned dynamics model and plans with a modified Model Predictive Path Integral control. We theoretically quantify the difference between the generated trajectory and the optimal trajectory during planning in terms of the value they achieved through the lens of Lipschitz Continuity. Our empirical results on several standard benchmarks show that our algorithm achieves superior sample efficiency and asymptotic performance than state-of-the-art PAMDP methods.
 
