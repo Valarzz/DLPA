@@ -1,4 +1,4 @@
-# Model-based-Reinforcement-Learning-for-Parameterized-Action-Spaces
+# Model-based Reinforcement Learning for Parameterized Action Spaces
 
 Source code for [DLPA](https://arxiv.org/abs/2404.03037), ICML 2024
 
